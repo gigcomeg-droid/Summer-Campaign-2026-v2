@@ -368,42 +368,153 @@
     color:#fff;position:relative;
   }
   #route .section-head h2{color:#fff;}
+  #route p.lede{color:rgba(255,255,255,0.82);max-width:58ch;font-size:clamp(1rem,1.8vw,1.15rem);}
 
-  /* ---- route photo: full-bleed, edge to edge ---- */
+  .route-stage{position:relative;}
+  .route-glow{
+    position:absolute;inset:-10% -6% auto -6%;height:65%;
+    background:
+      radial-gradient(ellipse 55% 100% at 22% 0%, rgba(210,140,100,0.32), transparent 70%),
+      radial-gradient(ellipse 55% 100% at 82% 15%, rgba(128,148,230,0.28), transparent 70%);
+    filter:blur(6px);
+    z-index:0;pointer-events:none;
+  }
+
+  .route-map-subtitle{
+    position:relative;z-index:1;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.76rem;letter-spacing:0.12em;text-transform:uppercase;
+    color:var(--rose-gold);
+    margin-bottom:16px;
+  }
+
+  /* ---- interactive route map: real stops as numbered checkpoints ---- */
+  .route-map-layout{
+    position:relative;z-index:1;
+    display:grid;grid-template-columns:1.5fr 1fr;gap:20px;
+    align-items:stretch;
+  }
+  @media (max-width:900px){ .route-map-layout{grid-template-columns:1fr;} }
+
   .route-map-card{
-    padding:0 0 32px;text-align:center;overflow:hidden;position:relative;
+    position:relative;overflow:hidden;
+    min-height:440px;
   }
-  .route-map-wrap{position:relative;z-index:1;width:100%;margin:0;}
-  .route-map-wrap img{
-    width:100%;height:auto;display:block;
+  .route-map-canvas{
+    position:absolute;inset:0;
+    will-change:transform;
   }
-  .route-van-float{
-    position:absolute;top:40%;left:8%;
-    width:clamp(50px,9vw,80px);height:auto;
-    transform:translate(-50%,0);
-    z-index:2;
-    filter:drop-shadow(0 14px 16px rgba(8,3,38,0.4));
-    animation:route-van-bob 5s ease-in-out infinite;
+  .route-map-bg{
+    position:absolute;inset:0;width:100%;height:100%;display:block;
+    object-fit:cover;object-position:50% 10%;
   }
-  .route-van-float img{display:block;width:100%;height:auto;}
+  .route-map-lines{position:absolute;inset:0;width:100%;height:100%;}
+
+  .route-van-marker{
+    position:absolute;left:42%;top:21%;
+    width:52px;height:auto;
+    transform:translate(-50%,-135%);
+    z-index:3;pointer-events:none;
+    filter:drop-shadow(0 8px 10px rgba(8,3,38,0.5));
+    animation:route-van-bob 3s ease-in-out infinite;
+  }
+  .route-van-marker img{display:block;width:100%;height:auto;transition:transform .3s ease;}
+  .route-van-marker.is-flipped img{transform:scaleX(-1);}
   @keyframes route-van-bob{
-    0%,100%{ transform:translate(-50%,0); }
-    50%{ transform:translate(-50%,-16px); }
+    0%,100%{ transform:translate(-50%,-135%); }
+    50%{ transform:translate(-50%,-142%); }
   }
-  .route-van-trail{
-    position:absolute;top:46%;left:8%;
-    height:0;width:0%;
-    border-top:2.5px dashed rgba(210,140,100,0.75);
-    z-index:1;pointer-events:none;
+
+  .route-marker{
+    position:absolute;
+    transform:translate(-50%,-50%);
+    background:none;border:none;padding:8px;margin:-8px;cursor:pointer;
+    z-index:2;
+  }
+  .route-marker-dot{
+    position:relative;
+    display:flex;align-items:center;justify-content:center;
+    width:48px;height:48px;border-radius:50%;
+    background:rgba(210,140,100,0.18);
+    border:2px solid rgba(210,140,100,0.55);
+    color:var(--rose-gold);
+    font-family:'JetBrains Mono',monospace;font-size:0.92rem;font-weight:700;letter-spacing:0.02em;
+    transition:background .3s ease, border-color .3s ease, color .3s ease, transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease;
+    box-shadow:0 6px 14px -6px rgba(8,3,38,0.5);
+  }
+  .route-marker-dot::before{
+    content:"";
+    position:absolute;inset:-8px;border-radius:50%;
+    border:1px solid rgba(210,140,100,0.4);
+    opacity:0;transition:opacity .3s ease, transform .3s ease;
+    transform:scale(0.8);
+  }
+  .route-marker:hover .route-marker-dot,
+  .route-marker.is-active .route-marker-dot{
+    background:var(--rose-gold);
+    border-color:var(--rose-gold);
+    color:#fff;
+    transform:scale(1.1);
+    box-shadow:0 10px 24px -8px rgba(210,140,100,0.75);
+  }
+  .route-marker.is-active .route-marker-dot::before{opacity:1;transform:scale(1);}
+
+  .route-info-float{
+    position:absolute;left:16px;right:16px;bottom:16px;
+    max-width:300px;
+    display:flex;align-items:flex-start;gap:12px;
+    padding:16px 18px;
+    background:rgba(15,8,46,0.78);
+    border:1px solid rgba(255,255,255,0.16);
+    border-radius:16px;
+    backdrop-filter:blur(14px) saturate(160%);
+    opacity:0;transform:translateY(8px);
+    transition:opacity .35s ease, transform .35s ease;
+    pointer-events:none;
+    z-index:3;
+  }
+  .route-info-float.is-visible{opacity:1;transform:translateY(0);}
+  .route-info-num{
+    flex:none;padding-top:2px;
+    font-family:'JetBrains Mono',monospace;font-weight:700;font-size:0.85rem;
+    color:var(--rose-gold);
+  }
+  .route-info-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.1rem;color:#fff;}
+  .route-info-sub{font-size:0.8rem;color:rgba(255,255,255,0.72);margin-top:2px;}
+
+  .route-list{display:flex;flex-direction:column;gap:10px;}
+  .route-list-item{
+    display:flex;align-items:center;gap:14px;
+    padding:14px 18px;
+    background:rgba(15,8,46,0.3);
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:14px;
+    cursor:pointer;text-align:left;
+    transition:border-color .25s ease, background .25s ease;
+  }
+  .route-list-item:hover{border-color:rgba(210,140,100,0.4);}
+  .route-list-item.is-active{border-color:var(--rose-gold);background:rgba(210,140,100,0.14);}
+  .rli-num{
+    flex:none;width:24px;
+    font-family:'JetBrains Mono',monospace;font-weight:700;font-size:0.8rem;color:var(--rose-gold);
+  }
+  .rli-name{display:block;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;color:#fff;font-size:1rem;}
+  .rli-sub{display:block;font-size:0.78rem;color:rgba(255,255,255,0.62);margin-top:1px;}
+
+  @media (max-width:900px){
+    .route-map-card{min-height:320px;}
+    .route-list{flex-direction:row;overflow-x:auto;gap:10px;padding-bottom:2px;scrollbar-width:none;}
+    .route-list::-webkit-scrollbar{display:none;}
+    .route-list-item{flex:0 0 auto;min-width:150px;}
+    .route-info-float{max-width:none;}
   }
 
   .route-slogan{
-    margin-top:26px;
-    padding:0 20px;
     position:relative;z-index:1;
+    margin-top:26px;text-align:center;
     font-family:'Reforma 2018 Gris','Bricolage Grotesque',sans-serif;
     font-weight:700;
-    font-size:clamp(1rem,2vw,1.3rem);
+    font-size:clamp(1.05rem,2.1vw,1.35rem);
     color:var(--rose-gold);
   }
 
@@ -560,10 +671,67 @@
       <span class="eyebrow" style="color:var(--rose-gold)">The Route</span>
       <h2>Everywhere we stopped, we left a mark.</h2>
       <div class="brand-bar"></div>
+      <p class="lede">A few highlights from our route &mdash; the Mobibus made many more stops along the North Coast this summer than we can show here.</p>
     </div>
 
-    <div class="route-map-card brand-glass">
-      <div class="route-map-wrap" id="route-map-wrap"></div>
+    <div class="route-stage">
+      <div class="route-glow"></div>
+
+      <div class="route-map-subtitle">The Key Checkpoints</div>
+
+      <div class="route-map-layout">
+        <div class="route-map-card brand-glass" id="route-map-card">
+          <div class="route-map-canvas" id="route-map-canvas">
+            <img class="route-map-bg" src="assets/egypt-map-outline.png" alt="Outline map of Egypt's North Coast" aria-hidden="true">
+            <svg class="route-map-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M42,21 L30,15 L20,19 L10,17" fill="none" stroke="var(--rose-gold)" stroke-width="0.35" stroke-dasharray="0.6 2.2" stroke-linecap="round" opacity="0.6"/>
+            </svg>
+
+            <div class="route-van-marker" id="route-van-marker"><img src="assets/van-marker.png" alt="GIG Sahel van"></div>
+
+            <button class="route-marker" type="button" data-stop="0" style="left:42%;top:21%;" aria-label="Marina 4">
+              <span class="route-marker-dot">01</span>
+            </button>
+            <button class="route-marker" type="button" data-stop="1" style="left:30%;top:15%;" aria-label="Marina 5">
+              <span class="route-marker-dot">02</span>
+            </button>
+            <button class="route-marker" type="button" data-stop="2" style="left:20%;top:19%;" aria-label="Cozy Mall, Seashell">
+              <span class="route-marker-dot">03</span>
+            </button>
+            <button class="route-marker" type="button" data-stop="3" style="left:10%;top:17%;" aria-label="Blumar, Sidi Abdul Rahman">
+              <span class="route-marker-dot">04</span>
+            </button>
+          </div>
+
+          <div class="route-info-float" id="route-info-float">
+            <span class="route-info-num" id="route-info-num">01</span>
+            <div>
+              <div class="route-info-title" id="route-info-title">Marina 4</div>
+              <div class="route-info-sub" id="route-info-sub"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="route-list" id="route-list">
+          <button class="route-list-item" type="button" data-stop="0">
+            <span class="rli-num">01</span>
+            <span><span class="rli-name">Marina 4</span></span>
+          </button>
+          <button class="route-list-item" type="button" data-stop="1">
+            <span class="rli-num">02</span>
+            <span><span class="rli-name">Marina 5</span></span>
+          </button>
+          <button class="route-list-item" type="button" data-stop="2">
+            <span class="rli-num">03</span>
+            <span><span class="rli-name">Cozy Mall</span><span class="rli-sub">Seashell</span></span>
+          </button>
+          <button class="route-list-item" type="button" data-stop="3">
+            <span class="rli-num">04</span>
+            <span><span class="rli-name">Blumar</span><span class="rli-sub">Sidi Abdul Rahman</span></span>
+          </button>
+        </div>
+      </div>
+
       <div class="route-slogan">Insurance That's Made For You</div>
     </div>
   </div>
@@ -914,7 +1082,7 @@ document.querySelectorAll('[data-count]').forEach(function(el){
 });
 
 /* ---------- section reveals ---------- */
-gsap.utils.toArray('.kpi-tile, .conv-tile, .social-card, .finding, .class-row, .note-card, .media-tile, .media-feature').forEach(function(el, i){
+gsap.utils.toArray('.kpi-tile, .conv-tile, .social-card, .finding, .class-row, .note-card, .media-tile, .media-feature, .route-list-item').forEach(function(el, i){
   gsap.fromTo(el, {opacity:0, y:26}, {
     opacity:1, y:0, duration:0.8, ease:'power3.out',
     delay: (i % 6) * 0.06,
@@ -927,35 +1095,80 @@ gsap.utils.toArray('.section-head').forEach(function(el){
 gsap.utils.toArray('.closing-slogan').forEach(function(el){
   gsap.fromTo(el, {opacity:0, y:20}, {opacity:1, y:0, duration:1, ease:'power3.out', scrollTrigger:{trigger:el, start:'top 92%'}});
 });
+
+/* ---------- interactive route map: checkpoint selection ---------- */
 (function(){
-  var host = document.getElementById('route-map-wrap');
-  if (!host) return;
-  host.innerHTML =
-    '<img src="assets/route-flags.png" alt="GIG flags along the North Coast route">' +
-    '<div class="route-van-trail" id="route-van-trail"></div>' +
-    '<div class="route-van-float" id="route-van"><img src="assets/van-marker.png" alt="GIG Sahel van"></div>';
+  var card = document.getElementById('route-map-card');
+  var canvas = document.getElementById('route-map-canvas');
+  if (!card || !canvas) return;
 
-  var van = document.getElementById('route-van');
-  var trail = document.getElementById('route-van-trail');
-  var startLeft = 8, endLeft = 44;
+  var stops = [
+    {name:'Marina 4', sub:'', left:42, top:21},
+    {name:'Marina 5', sub:'', left:30, top:15},
+    {name:'Cozy Mall', sub:'Seashell', left:20, top:19},
+    {name:'Blumar', sub:'Sidi Abdul Rahman', left:10, top:17}
+  ];
 
-  if (reduceMotion) {
-    gsap.set(van, {left:endLeft+'%'});
-    gsap.set(trail, {width:(endLeft-startLeft)+'%'});
-    return;
+  var markers = Array.prototype.slice.call(card.querySelectorAll('.route-marker'));
+  var listItems = Array.prototype.slice.call(document.querySelectorAll('.route-list-item'));
+  var infoFloat = document.getElementById('route-info-float');
+  var infoNum = document.getElementById('route-info-num');
+  var infoTitle = document.getElementById('route-info-title');
+  var infoSub = document.getElementById('route-info-sub');
+  var van = document.getElementById('route-van-marker');
+  var lastStopLeft = stops[0].left;
+
+  function pad(n){ return n < 10 ? '0'+n : ''+n; }
+
+  function selectStop(i, animate){
+    var s = stops[i];
+    if (!s) return;
+
+    markers.forEach(function(m){ m.classList.toggle('is-active', parseInt(m.dataset.stop,10) === i); });
+    listItems.forEach(function(l){ l.classList.toggle('is-active', parseInt(l.dataset.stop,10) === i); });
+
+    infoNum.textContent = pad(i+1);
+    infoTitle.textContent = s.name;
+    infoSub.textContent = s.sub;
+    infoSub.style.display = s.sub ? 'block' : 'none';
+    infoFloat.classList.add('is-visible');
+
+    if (van){
+      if (s.left < lastStopLeft) van.classList.add('is-flipped');
+      else if (s.left > lastStopLeft) van.classList.remove('is-flipped');
+      lastStopLeft = s.left;
+    }
+
+    if (reduceMotion || !animate){
+      gsap.set(canvas, {transformOrigin:s.left+'% '+s.top+'%', scale:1.18});
+      if (van) gsap.set(van, {left:s.left+'%', top:s.top+'%'});
+      return;
+    }
+    gsap.killTweensOf(canvas);
+    gsap.timeline()
+      .to(canvas, {scale:1, duration:0.3, ease:'power2.inOut'})
+      .set(canvas, {transformOrigin:s.left+'% '+s.top+'%'})
+      .to(canvas, {scale:1.18, duration:0.55, ease:'power3.out'});
+
+    if (van){
+      gsap.killTweensOf(van);
+      gsap.to(van, {left:s.left+'%', top:s.top+'%', duration:0.6, ease:'power3.out'});
+    }
   }
 
-  gsap.set(van, {left:startLeft+'%'});
-  gsap.timeline({
-    scrollTrigger:{
-      trigger:host,
-      start:'top 95%',
-      end:'top 5%',
-      scrub:1.8
-    }
-  })
-  .fromTo(van, {left:startLeft+'%'}, {left:endLeft+'%', ease:'none'}, 0)
-  .fromTo(trail, {width:'0%'}, {width:(endLeft-startLeft)+'%', ease:'none'}, 0);
+  markers.forEach(function(m){
+    var i = parseInt(m.dataset.stop, 10);
+    m.addEventListener('mouseenter', function(){ selectStop(i, true); });
+    m.addEventListener('click', function(){ selectStop(i, true); });
+    m.addEventListener('focus', function(){ selectStop(i, true); });
+  });
+  listItems.forEach(function(l){
+    var i = parseInt(l.dataset.stop, 10);
+    l.addEventListener('mouseenter', function(){ selectStop(i, true); });
+    l.addEventListener('click', function(){ selectStop(i, true); });
+  });
+
+  selectStop(0, false);
 })();
 
 /* ---------- hero parallax ---------- */
