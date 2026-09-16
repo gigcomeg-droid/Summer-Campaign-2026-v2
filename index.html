@@ -130,6 +130,86 @@
   }
   @media (max-width:640px){ #progress-rail{display:none;} }
 
+  /* ===== INTRO / SPLASH ===== */
+  #intro{
+    min-height:100vh;
+    display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;isolation:isolate;
+    background:linear-gradient(160deg, var(--deep-blue) 0%, var(--indigo) 55%, #120a3d 100%);
+    background-size:220% 220%;
+    animation:intro-gradient 16s ease-in-out infinite;
+    color:#fff;text-align:center;
+  }
+  @keyframes intro-gradient{
+    0%,100%{ background-position:0% 30%; }
+    50%{ background-position:100% 70%; }
+  }
+  #intro-particles{position:absolute;inset:0;z-index:0;pointer-events:none;}
+  .intro-glow{
+    position:absolute;inset:-20%;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(ellipse 45% 40% at 25% 25%, rgba(210,140,100,0.3), transparent 70%),
+      radial-gradient(ellipse 45% 40% at 78% 72%, rgba(128,148,230,0.3), transparent 70%);
+    filter:blur(20px);
+    animation:intro-glow-drift 10s ease-in-out infinite alternate;
+  }
+  @keyframes intro-glow-drift{
+    0%{ transform:translate(0,0) scale(1); }
+    100%{ transform:translate(2%,-2%) scale(1.08); }
+  }
+  .intro-mark{
+    position:absolute;z-index:0;pointer-events:none;
+    right:-10%;top:50%;
+    width:min(58vw,620px);
+    transform:translateY(-50%) rotate(-6deg);
+    opacity:0.09;
+    animation:intro-mark-float 9s ease-in-out infinite;
+  }
+  @keyframes intro-mark-float{
+    0%,100%{ transform:translateY(-50%) rotate(-6deg); }
+    50%{ transform:translateY(-53%) rotate(-3deg); }
+  }
+  .intro-inner{
+    position:relative;z-index:1;
+    display:flex;flex-direction:column;align-items:center;
+    max-width:820px;padding:0 clamp(20px,5vw,48px);
+  }
+  .intro-eyebrow{color:var(--rose-gold);justify-content:center;margin-bottom:26px;}
+  .intro-title{
+    font-size:clamp(2.1rem,6vw,4.6rem);
+    font-weight:800;line-height:1.08;
+    text-wrap:balance;margin-bottom:22px;
+  }
+  .intro-title .accent{color:var(--rose-gold);}
+  .intro-sub{
+    font-family:'Archivo',sans-serif;
+    font-size:clamp(1rem,2vw,1.2rem);
+    color:rgba(255,255,255,0.78);
+    max-width:52ch;margin-bottom:44px;
+  }
+  .intro-btn{
+    position:relative;display:inline-flex;align-items:center;gap:12px;
+    padding:18px 38px;border-radius:50px;border:none;cursor:pointer;
+    background:var(--rose-gold);color:#180a4a;
+    font-family:'Archivo',sans-serif;font-weight:700;font-size:1.02rem;
+    box-shadow:0 20px 44px -16px rgba(210,140,100,0.65);
+    transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease;
+    overflow:hidden;
+  }
+  .intro-btn::before{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(120deg, transparent, rgba(255,255,255,0.55), transparent);
+    transform:translateX(-120%);
+    transition:transform .6s ease;
+  }
+  .intro-btn:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 26px 54px -14px rgba(210,140,100,0.8);}
+  .intro-btn:hover::before{transform:translateX(120%);}
+  .intro-btn span{position:relative;z-index:1;}
+  .intro-btn svg{position:relative;z-index:1;transition:transform .35s ease;}
+  .intro-btn:hover svg{transform:translateX(4px);}
+  .intro-scrollcue{position:absolute;left:50%;bottom:40px;transform:translateX(-50%);justify-content:center;z-index:1;}
+  @media (max-width:640px){ .intro-mark{display:none;} }
+
   /* ===== HERO ===== */
   #hero{
     min-height:100vh;
@@ -627,10 +707,11 @@
   @media print{
     *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;color-adjust:exact !important;}
     #topnav{position:static !important;box-shadow:none !important;}
-    #progress-rail,#hero-particles,#closing-particles,.scrollcue{display:none !important;}
+    #progress-rail,#hero-particles,#closing-particles,#intro-particles,.scrollcue{display:none !important;}
     #hero{min-height:auto;padding-bottom:20px;}
+    #intro{min-height:auto;padding:60px 0;}
     section{break-before:page;}
-    #hero{break-before:auto;}
+    #hero,#intro{break-before:auto;}
     .glass,.brand-glass,.kpi-tile,.conv-tile,.social-card,.region-row,.finding,.stack-card,.chart-card,.timeline-card,.route-map-card,.demand-grid > *,.media-feature,.media-tile,.t-point{break-inside:avoid;}
     .media-carousel{display:grid !important;grid-template-columns:repeat(3,1fr);overflow:visible !important;}
     .media-carousel .media-tile{width:auto !important;}
@@ -653,6 +734,22 @@
   </div>
   <div id="progress-rail"><div id="progress-fill"></div><div id="nav-van"><img src="assets/van3d/side-en.png" alt=""></div></div>
 </nav>
+
+<section id="intro">
+  <canvas id="intro-particles"></canvas>
+  <div class="intro-glow"></div>
+  <img class="intro-mark" src="assets/gig-mark.png" alt="" aria-hidden="true">
+  <div class="intro-inner">
+    <div class="eyebrow intro-eyebrow">GIG-Egypt &middot; Summer Campaign 2026</div>
+    <h1 class="intro-title">Are you ready for the<br><span class="accent">GIG-Egypt Summer Campaign 2026?</span></h1>
+    <p class="intro-sub">A season on the North Coast &mdash; the stops, the leads, and the results, all in one recap.</p>
+    <button class="intro-btn" id="intro-enter" type="button">
+      <span>Enter the Recap</span>
+      <svg viewBox="0 0 24 24" width="18" height="18"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+  <div class="scrollcue intro-scrollcue"><span class="line"></span> Scroll to begin</div>
+</section>
 
 <section id="hero">
   <div id="hero-media"><video src="assets/hero-video.mp4" autoplay muted loop playsinline preload="auto"></video></div>
@@ -1505,6 +1602,29 @@ function makeParticles(canvasId, opts){
 }
 makeParticles('hero-particles', {count:46, color:'rgba(255,255,255,0.75)'});
 makeParticles('closing-particles', {count:34, color:'rgba(210,140,100,0.6)'});
+makeParticles('intro-particles', {count:50, color:'rgba(255,255,255,0.7)'});
+
+/* ---------- intro splash: entrance + enter button ---------- */
+(function(){
+  if (reduceMotion){
+    gsap.set('.intro-eyebrow, .intro-title, .intro-sub, .intro-btn, .intro-scrollcue', {opacity:1, y:0, scale:1});
+  } else {
+    var tl = gsap.timeline({defaults:{ease:'power3.out'}});
+    tl.fromTo('.intro-eyebrow', {opacity:0, y:-14}, {opacity:1, y:0, duration:0.8}, 0.1)
+      .fromTo('.intro-title', {opacity:0, y:26}, {opacity:1, y:0, duration:1}, 0.28)
+      .fromTo('.intro-sub', {opacity:0, y:20}, {opacity:1, y:0, duration:0.9}, 0.52)
+      .fromTo('.intro-btn', {opacity:0, y:16, scale:0.94}, {opacity:1, y:0, scale:1, duration:0.8, ease:'back.out(1.7)'}, 0.7)
+      .fromTo('.intro-scrollcue', {opacity:0}, {opacity:1, duration:1}, 1.1);
+  }
+
+  var enterBtn = document.getElementById('intro-enter');
+  var heroEl = document.getElementById('hero');
+  if (enterBtn && heroEl){
+    enterBtn.addEventListener('click', function(){
+      heroEl.scrollIntoView({behavior: reduceMotion ? 'auto' : 'smooth'});
+    });
+  }
+})();
 
 /* keep scroll-trigger positions accurate once images/video below the fold finish loading */
 window.addEventListener('load', function(){ ScrollTrigger.refresh(); });
