@@ -680,8 +680,10 @@
     font-family:'JetBrains Mono',monospace;font-size:0.76rem;letter-spacing:0.04em;
     text-transform:uppercase;color:#fff;background:rgba(255,255,255,0.07);
     border:1px solid rgba(255,255,255,0.22);padding:12px 22px;border-radius:30px;white-space:nowrap;
+    cursor:default;
+    transition:border-color .3s ease, color .3s ease, background .3s ease, transform .3s ease;
   }
-  .next-step.is-accent{border-color:var(--rose-gold);color:var(--rose-gold);background:rgba(210,140,100,0.14);}
+  .next-step.is-accent{border-color:var(--rose-gold);color:var(--rose-gold);background:rgba(210,140,100,0.14);transform:translateY(-2px);}
   .next-arrow{color:rgba(255,255,255,0.4);font-size:1.2rem;line-height:1;}
 
   .closing-slogan{
@@ -862,11 +864,8 @@
       <div class="media-carousel" id="media-carousel">
         <div class="media-tile"><img src="assets/media/photo1.jpg" alt="GIG-Egypt Mobibus, on-site consultation at night"></div>
         <div class="media-tile"><img src="assets/media/photo2.jpg" alt="GIG-Egypt Mobibus"></div>
-        <div class="media-tile"><img src="assets/media/photo3.jpg" alt="GIG-Egypt Mobibus, inside the branded mobile unit"></div>
         <div class="media-tile"><img src="assets/media/photo4.jpg" alt="GIG-Egypt Mobibus"></div>
-        <div class="media-tile"><img src="assets/media/photo5.jpg" alt="GIG-Egypt Mobibus, visitors at the mobile unit"></div>
         <div class="media-tile"><img src="assets/media/photo6.jpg" alt="GIG-Egypt Mobibus"></div>
-        <div class="media-tile"><img src="assets/media/photo7.jpg" alt="GIG-Egypt branded van, daytime at a North Coast resort"></div>
         <div class="media-tile"><img src="assets/media/photo8.jpg" alt="GIG-Egypt branded van outside Palma Bay Rotana"></div>
         <div class="media-tile"><img src="assets/media/photo10.jpg" alt="GIG-Egypt Mobibus, visitors gathered at the van window"></div>
       </div>
@@ -1091,12 +1090,12 @@
       <p class="lede">Every lead from this campaign now hands off to our outbound team &mdash; to be followed up, worked, and converted into real policies.</p>
     </div>
 
-    <div class="next-flow">
-      <span class="next-step">Campaign Leads</span>
+    <div class="next-flow" id="next-flow">
+      <span class="next-step" tabindex="0">Campaign Leads</span>
       <span class="next-arrow">&rarr;</span>
-      <span class="next-step">Outbound Team</span>
+      <span class="next-step" tabindex="0">Outbound Team</span>
       <span class="next-arrow">&rarr;</span>
-      <span class="next-step is-accent">Policies Written</span>
+      <span class="next-step" tabindex="0">Policies Issued</span>
     </div>
 
     <div class="closing-slogan">Invested in You.</div>
@@ -1543,6 +1542,26 @@ document.querySelectorAll('.kpi-tile, .conv-tile').forEach(function(card){
   } else {
     startAuto();
   }
+})();
+
+/* ================= closing: interactive flow highlight ================= */
+(function(){
+  var flow = document.getElementById('next-flow');
+  if (!flow) return;
+  var steps = Array.prototype.slice.call(flow.querySelectorAll('.next-step'));
+  var defaultIndex = 0;
+
+  function setActive(i){
+    steps.forEach(function(s, idx){ s.classList.toggle('is-accent', idx === i); });
+  }
+  setActive(defaultIndex);
+
+  steps.forEach(function(s, i){
+    s.addEventListener('mouseenter', function(){ setActive(i); });
+    s.addEventListener('mouseleave', function(){ setActive(defaultIndex); });
+    s.addEventListener('focus', function(){ setActive(i); });
+    s.addEventListener('blur', function(){ setActive(defaultIndex); });
+  });
 })();
 
 /* ================= social thermometers ================= */
